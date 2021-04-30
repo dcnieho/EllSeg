@@ -124,8 +124,11 @@ if __name__ == '__main__':
 
             output, elOut, latent, loss = out_tup
 
-            latent_pupil_center = elOut[:, 0:2].detach().cpu().numpy()
-            latent_iris_center  = elOut[:, 5:7].detach().cpu().numpy()
+
+            # BUG: This is not the regressed latent center. It is the center derived from
+            # the segmentation map. Future work: return regressed center.
+            latent_iris_center = elOut[:, 0:2].detach().cpu().numpy()
+            latent_pupil_center = elOut[:, 5:7].detach().cpu().numpy()
 
             _, seg_pupil_center = get_seg2ptLoss(output[:, 2, ...].cpu(), pupil_center, temperature=4)
             _, seg_iris_center  = get_seg2ptLoss(-output[:, 0, ...].cpu(), iris_center, temperature=4)

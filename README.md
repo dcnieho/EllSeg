@@ -1,5 +1,13 @@
 # EllSeg: An Ellipse Segmentation Framework for Robust Gaze Tracking
 
+---------------
+
+[UPDATE] 29/04/2021
+* Thanks to Zhimin Wang (zm.wang@buaa.edu.cn) for catching a few bugs in test script. Added notes.
+* Added pretrained.git_ok weights for initialization purposes.
+
+---------------
+
 Please click the image to view video
 
 [![Promotional image](./figures/promotional_image.jpg)](https://youtu.be/rRhHXb-R-E8?t=7)
@@ -15,12 +23,12 @@ Trained on:
 * OpenEDS
 * NVGaze
 * RITEyes
-* LPW*
-* Fuhl*
-* PupilNet*
+* LPW
+* Fuhl
+* PupilNet
 * All datasets (best for deploying)
 
-To ensure stable training, starred models * were initialized with weights from a network pretrained on OpenEDS+NVGaze+RITEyes for 2 epochs. To replicate results on starred * sets,  please initialize with the following pretrained weights.
+To ensure stable training, all models were initialized with weights from a network pretrained on OpenEDS+NVGaze+RITEyes for 2 epochs.
 
 # Try it out on your eye videos!
 For quick inference on your own eye videos, please use `evaluate_ellseg.py` as `python evaluate_ellseg --path2data=${PATH_EYE_VIDEOS}`. 
