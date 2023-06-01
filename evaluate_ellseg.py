@@ -24,6 +24,7 @@ from utils import get_predictions
 from modelSummary import model_dict
 from helperfunctions import plot_segmap_ellpreds, getValidPoints
 from helperfunctions import ransac, ElliFit, my_ellipse
+from scipy import ndimage
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -71,16 +72,16 @@ def preprocess_frame(img, op_shape, align_width=True):
                 if pad_width%2 == 0:
                     img = np.pad(img, ((pad_width//2, pad_width//2), (0, 0)))
                 else:
-                    img = np.pad(img, ((np.floor(pad_width/2), np.ceil(pad_width/2)), (0, 0)))
+                    img = np.pad(img, ((int(np.floor(pad_width/2)), int(np.ceil(pad_width/2))), (0, 0)))
                 scale_shift = (sc, pad_width)
 
             elif op_shape[0] < img.shape[0]:
                 # Vertically chop array off
                 pad_width = op_shape[0] - img.shape[0]
                 if pad_width%2 == 0:
-                    img = img[-pad_width/2:+pad_width/2, ...]
+                    img = img[-int(pad_width/2):+int(pad_width/2), ...]
                 else:
-                    img = img[-np.floor(pad_width/2):+np.ceil(pad_width/2), ...]
+                    img = img[-int(np.floor(pad_width/2)):+int(np.ceil(pad_width/2)), ...]
                 scale_shift = (sc, pad_width)
 
             else:
@@ -224,11 +225,13 @@ def evaluate_ellseg_per_video(path_vid, args, model):
     ellipse_out_dict = {}
 
     ret = True
-    pbar = tqdm(total=FR_COUNT)
+    pbar = tqdm(total=int(FR_COUNT))
 
     counter = 0
     while ret:
         ret, frame = vid_obj.read()
+        if frame is None:
+            break
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
