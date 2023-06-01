@@ -48,6 +48,8 @@ def parse_args():
                         help='use ellseg proposed ellipses, if FALSE, it will fit an ellipse to segmentation mask')
     parser.add_argument('--skip_ransac', type=int, default=0,
                         help='if using ElliFit, it skips outlier removal')
+    parser.add_argument('--folder_suffix', type=str, default='',
+                        help='suffix for output folder')
 
     args = parser.parse_args()
     opt = vars(args)
@@ -217,9 +219,10 @@ def evaluate_ellseg_per_video(path_vid, args, model):
     H  = vid_obj.get(cv2.CAP_PROP_FRAME_HEIGHT)
     W  = vid_obj.get(cv2.CAP_PROP_FRAME_WIDTH)
 
-    path_vid_out = os.path.join(path_dir, file_name+'_ellseg.mp4')
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    vid_out = cv2.VideoWriter(path_vid_out, fourcc, int(FR), (int(W), int(H)))
+    if args.save_overlay:
+        path_vid_out = os.path.join(path_dir, 'ell_seg', file_name+'_ellseg.mp4')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        vid_out = cv2.VideoWriter(path_vid_out, fourcc, int(FR), (int(W), int(H)))
 
     # Dictionary to save output ellipses
     ellipse_out_dict = {}
@@ -256,21 +259,26 @@ def evaluate_ellseg_per_video(path_vid, args, model):
                                                                    frame.shape)
 
         # Generate visuals
-        frame_overlayed_with_op = plot_segmap_ellpreds(frame, seg_map, pupil_ellipse, iris_ellipse)
-        vid_out.write(frame_overlayed_with_op[..., ::-1])
+        if args.save_overlay:
+            frame_overlayed_with_op = plot_segmap_ellpreds(frame, seg_map, pupil_ellipse, iris_ellipse)
+            vid_out.write(frame_overlayed_with_op[..., ::-1])
+
+        # get center of mass of pupil mask
+        py,px = ndimage.center_of_mass(np.where(seg_map == 2, seg_map, 0))
 
         # Append to dictionary
-        ellipse_out_dict[counter] = {'pupil': pupil_ellipse, 'iris': iris_ellipse}
+        ellipse_out_dict[counter] = {'pupil': pupil_ellipse, 'iris': iris_ellipse, 'pup_segment': {'x':px, 'y':py}}
 
         pbar.update(1)
         counter+=1
 
-    vid_out.release()
+    if args.save_overlay:
+        vid_out.release()
     vid_obj.release()
     pbar.close()
 
     # Save out ellipse dictionary
-    np.save(os.path.join(path_dir, file_name+'_pred.npy'), ellipse_out_dict)
+    np.save(os.path.join(path_dir, 'ell_seg'+args.folder_suffix, file_name+'_pred.npy'), ellipse_out_dict)
 
     return True
 
@@ -291,6 +299,10 @@ if __name__=='__main__':
     path_obj = Path(args.path2data).rglob('*.mp4')
 
     for path_vid in path_obj:
+        path_dir, full_file_name = os.path.split(path_vid)
+        out_dir = os.path.join(path_dir, 'ell_seg'+args.folder_suffix)
+        if not os.path.isdir(out_dir) and not path_dir.endswith('ell_seg'+args.folder_suffix): # no ell_seg inside ell_seg
+            os.mkdir(out_dir)
         if '_ellseg' not in str(path_vid):
             evaluate_ellseg_per_video(path_vid, args, model)
 
