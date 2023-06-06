@@ -409,3 +409,6 @@ if __name__ == '__main__':
             torch.save(netDict,
                        os.path.join(path2model, args.model+'_{}.pkl'.format(epoch)))
     writer.close()
+
+    torch.save(netDict,
+                os.path.join(path2model, args.model+'_final_{}.pkl'.format(epoch)))
