@@ -17,6 +17,7 @@ import matplotlib
 import numpy as np
 import deepdish as dd
 import scipy.io as scio
+from tqdm import tqdm
 
 from PIL import Image
 from random import shuffle
@@ -31,7 +32,7 @@ parser.add_argument('--noDisp', help='Specify flag to display labelled images', 
 parser.add_argument('--path2ds',
                     help='Path to dataset',
                     type=str,
-                    default='/media/rakshit/Monster/Datasets')
+                    default='/media/dee/T7 Shield/datasets')
 args = parser.parse_args()
 
 #sys.path.append(os.getcwd())
@@ -48,19 +49,21 @@ else:
 
 print('Extracting NVGaze')
 
-gui_env = ['Qt5Agg','WXAgg','TKAgg','GTKAgg']
-for gui in gui_env:
-    try:
-        print("testing: {}".format(gui))
-        matplotlib.use(gui,warn=False, force=True)
-        from matplotlib import pyplot as plt
-        break
-    except:
-        continue
+if not noDisp:
+    gui_env = ['Qt5Agg','WXAgg','TKAgg','GTKAgg']
+    for gui in gui_env:
+        try:
+            print("testing: {}".format(gui))
+            matplotlib.use(gui,warn=False, force=True)
+            from matplotlib import pyplot as plt
+            break
+        except:
+            continue
 
-print("Using: {}".format(matplotlib.get_backend()))
+    print("Using: {}".format(matplotlib.get_backend()))
+    plt.ion()
 
-plt.ion()
+
 PATH_DIR = os.path.join(args.path2ds, 'NVGaze', 'synthetic_dataset')
 PATH_DS = os.path.join(args.path2ds, 'All')
 PATH_MASTER = os.path.join(args.path2ds, 'MasterKey')
@@ -180,7 +183,7 @@ def quantizeMask(wSkin_mask, I):
         wSkin_mask[loc] = 0
     return (wSkin_mask, mask)
 
-for fName in list_ds:
+for fName in tqdm(list_ds):
     warnings.filterwarnings("error")
     ds_name = 'NVGaze'+'_'+fName+'_'+str(ds_num)
 
@@ -197,7 +200,7 @@ for fName in list_ds:
 
     fr_num = 0
 
-    for boo in imList[:500]:
+    for boo in tqdm(imList[:500]):
         # Read pupil  info
         imNum_str = re.findall('\d+', boo)[0]
         str_imName = 'type_img_frame_{}.png'.format(imNum_str)
