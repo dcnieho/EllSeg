@@ -60,6 +60,11 @@ if __name__ == '__main__':
                                    'pretrained',
                                    'weights',
                                    'pretrained.git_ok')
+    path2pretrained = os.path.join(os.getcwd(),
+                                   'weights',
+                                   'pretrained',
+                                   args.model,
+                                   'pretrained.git_ok')
 
     # Generate directories if they don't exist
     os.makedirs(LOGDIR, exist_ok=True)
