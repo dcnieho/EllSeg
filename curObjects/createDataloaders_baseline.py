@@ -16,7 +16,7 @@ sys.path.append('..')
 import CurriculumLib as CurLib
 from CurriculumLib import DataLoader_riteyes
 
-path2data = '/media/rakshit/Monster/Datasets'
+path2data = '/media/dee/T7 Shield/datasets'
 path2h5 = os.path.join(path2data, 'All')
 keepOld = True
 
