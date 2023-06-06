@@ -261,8 +261,8 @@ def generateImageGrid(I,
 
         if (not cond[i, 0]) or override:
             # If pupil center exists
-            rr, cc = draw.disk((pupil_center[i, 1].clamp(6, im.shape[0]-6),
-                                pupil_center[i, 0].clamp(6, im.shape[1]-6)),
+            rr, cc = draw.disk((np.clip(pupil_center[i, 1], 6, im.shape[0]-6),
+                                np.clip(pupil_center[i, 0], 6, im.shape[1]-6)),
                                  5)
             im[rr, cc, ...] = 255
         I_o.append(im)
